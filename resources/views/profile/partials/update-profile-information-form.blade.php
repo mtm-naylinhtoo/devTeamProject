@@ -13,7 +13,7 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profiles.update', $user->id) }}" class="mt-6 space-y-6">
         @csrf
         @method('patch')
 
@@ -46,6 +46,17 @@
                 </div>
             @endif
         </div>
+
+        @if (!empty($editableRoles))
+            <div>
+                <x-input-label for="role" :value="__('Role')" />
+                <select id="role" name="role" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+                    @foreach ($editableRoles as $role)
+                        <option value="{{ $role }}" {{ $user->role === $role ? 'selected' : '' }}>{{ ucfirst($role) }}</option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
 
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>

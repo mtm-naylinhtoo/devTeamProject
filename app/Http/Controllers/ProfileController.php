@@ -11,6 +11,7 @@ use Illuminate\View\View;
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Carbon;
 
 
 class ProfileController extends Controller
@@ -20,6 +21,17 @@ class ProfileController extends Controller
         $profiles = User::all();
 
         return view('profile.index', compact('profiles'));
+    }
+
+    public function show(User $profile)
+    {
+        $currentMonth = now()->month;
+        $currentYear = now()->year;
+        $task_details = $profile->tasks()->whereHas('task', function ($query) use ($currentMonth, $currentYear) {
+            $query->whereYear('due_date', $currentYear)->whereMonth('due_date', $currentMonth);
+        })->get();
+
+        return view('profile.show', compact('profile', 'task_details'));
     }
 
     public function edit(User $profile)

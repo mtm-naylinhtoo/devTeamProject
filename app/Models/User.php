@@ -40,6 +40,11 @@ class User extends Authenticatable
         return in_array($this->role, ['manager', 'leader', 'sub-leader']);
     }
 
+    public function tasks()
+    {
+        return $this->hasMany(TaskDetail::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *

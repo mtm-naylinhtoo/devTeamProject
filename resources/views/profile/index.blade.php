@@ -29,7 +29,9 @@
                         <tbody class="bg-white divide-y divide-gray-200">
                             @foreach ($profiles as $profile)
                             <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $profile->name }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <a href="{{ route('profiles.show', $profile->id) }}" class="text-indigo-600 hover:text-indigo-900">{{ $profile->name }}</a>
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap">{{ $profile->email }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">{{ ucfirst($profile->role) }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

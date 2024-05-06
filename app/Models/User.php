@@ -37,7 +37,7 @@ class User extends Authenticatable
 
     public function isAdmin()
     {
-        return in_array($this->role, ['manager', 'leader', 'sub-leader']);
+        return in_array($this->role, ['manager','bse', 'leader', 'sub-leader']);
     }
 
     public function tasks()

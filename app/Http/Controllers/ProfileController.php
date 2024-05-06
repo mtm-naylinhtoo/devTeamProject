@@ -46,7 +46,7 @@ class ProfileController extends Controller
         // Check if the user's role allows editing
         if (auth()->user()->isAdmin()) {
             // User has permission to edit the role
-            $editableRoles = ['manager', 'leader', 'sub-leader', 'senior-developer', 'junior-developer'];
+            $editableRoles = ['manager', 'bse', 'leader', 'sub-leader', 'senior-developer', 'junior-developer'];
         } else {
             // User does not have permission to edit the role
             $editableRoles = [];
@@ -83,7 +83,7 @@ class ProfileController extends Controller
         if (auth()->user()->isAdmin() && $request->filled('role')) {
             // Validate the role field
             $request->validate([
-                'role' => 'required|in:manager,leader,sub-leader,senior-developer,junior-developer',
+                'role' => 'required|in:manager,bse,leader,sub-leader,senior-developer,junior-developer',
             ]);
     
             // Update the user's role

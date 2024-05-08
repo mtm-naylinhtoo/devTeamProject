@@ -7,6 +7,7 @@ use App\Models\Task;
 use App\Models\TaskDetail;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 
 
 class TaskController extends Controller
@@ -73,13 +74,17 @@ class TaskController extends Controller
             return back()->withErrors('Failed to create the task.')->withInput();
         }
     }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    
+    public function show(Task $task)
     {
-        //
+        // Eager load the task details and associated users
+        $task->load('details.user');
+        // Get the details of the current user for this task
+        $userDetail = TaskDetail::where('task_id', $task->id)
+        ->where('user_id', auth()->user()->id)
+        ->first();
+
+        return view('tasks.show', compact('task', 'userDetail'));
     }
 
     public function edit(Task $task)
@@ -128,6 +133,28 @@ class TaskController extends Controller
     
         return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
     }
+
+    public function update_status(Request $request, $task_detail_id)
+    {
+        // Retrieve the task detail from the database
+        $taskDetail = TaskDetail::findOrFail($task_detail_id);
+    
+        // Update status
+        $taskDetail->status = $request->status;
+    
+        // Set actual_finished_date based on status
+        if ($request->status == 'completed') {
+            $taskDetail->actual_finished_date = now();
+        } elseif (in_array($request->status, ['pending', 'in_progress'])) {
+            $taskDetail->actual_finished_date = null;
+        }
+    
+        $taskDetail->save();
+    
+        // Return a JSON response
+        return response()->json(['message' => 'Task status updated successfully']);
+    }
+
     /**
      * Remove the specified resource from storage.
      */

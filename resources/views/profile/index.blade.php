@@ -21,24 +21,28 @@
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Role
                                 </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Actions
-                                </th>
+                                @if (Auth::user()->isAdmin())
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Actions
+                                    </th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
                             @foreach ($profiles as $profile)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <a href="{{ route('profiles.show', $profile->id) }}" class="text-indigo-600 hover:text-indigo-900">{{ $profile->name }}</a>
+                                    <a href="{{ route('profiles.show', $profile->id) }}" class="text-black hover:underline">{{ $profile->name }}</a>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">{{ $profile->email }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">{{ ucfirst($profile->role) }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    @if (Auth::user()->isAdmin() || Auth::user()->id === $profile->id)
-                                    <a href="{{ route('profiles.edit', $profile->id) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
-                                    @endif
-                                </td>
+                                @if (Auth::user()->isAdmin())
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        @if (Auth::user()->isAdmin() || Auth::user()->id === $profile->id)
+                                        <a href="{{ route('profiles.edit', $profile->id) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                                        @endif
+                                    </td>
+                                @endif
                             </tr>
                             @endforeach
                         </tbody>

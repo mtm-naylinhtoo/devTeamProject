@@ -31,6 +31,13 @@ class ProfileController extends Controller
             $query->whereYear('due_date', $currentYear)->whereMonth('due_date', $currentMonth);
         })->get();
 
+        $task_details->each(function ($detail) {
+            // Filter the feedbacks relation to check if there's any feedback from the authenticated user
+            $detail->feedback_given = $detail->feedbacks->contains(function ($feedback) {
+                return $feedback->user_id === auth()->id();
+            });
+        });
+
         return view('profile.show', compact('profile', 'task_details'));
     }
 

@@ -45,6 +45,12 @@ class User extends Authenticatable
         return $this->hasMany(TaskDetail::class);
     }
 
+    public function feedbacks()
+    {
+        return $this->hasMany(Feedback::class);
+    }
+
+
     /**
      * Get the attributes that should be cast.
      *

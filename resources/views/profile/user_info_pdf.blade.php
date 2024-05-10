@@ -36,6 +36,9 @@
     <h2>User Information</h2>
     <p><strong>Name:</strong> {{ $user->name }}</p>
     <p><strong>Position:</strong> {{ ucfirst($user->role) }}</p>
+
+    <h2>Summary</h2>
+    <p>{{ $summary }}</p>
     
     <h3>Feedbacks</h3>
     @if ($tasksWithFeedbacks->isNotEmpty())

@@ -14,6 +14,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Carbon;
 use Spatie\LaravelPdf\Facades\Pdf;
 use Spatie\Browsershot\Browsershot;
+use Illuminate\Support\Facades\Http;
 
 
 class ProfileController extends Controller
@@ -129,10 +130,32 @@ class ProfileController extends Controller
             ->whereHas('feedbacks')
             ->with('feedbacks')
             ->get();
-    
+
+        $feedbackText = "you are a manager, u get a member task complete information for summarization/evaluation. 
+        say what the manager would say and nothing else. the data is= Member: {$user->name} and their role is {$user->role}, BSE means Bridge System Engineer\n\n";
+        foreach ($tasksWithFeedbacks as $task) {
+            foreach ($task->feedbacks as $feedback) {
+                $feedbackText .= "Task: {$task->title}\n";
+                $feedbackText .= "Rating: {$feedback->rating}\n";
+                $feedbackText .= "Comment: {$feedback->comment}\n\n";
+            }
+        }
+
+        // Make a POST request to OpenAI for summarization
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer key',
+            'Content-Type' => 'application/json',
+        ])->post('https://api.openai.com/v1/engines/gpt-3.5-turbo-instruct/completions', [
+            'prompt' => $feedbackText,
+            'max_tokens' => 300, // Adjust as needed
+        ]);
+        // Extract the summary from the API response
+        $summary = json_decode($response->getBody(), true)['choices'][0]['text'];
+        
         $html = view('profile.user_info_pdf', [
             'user' => $user,
-            'tasksWithFeedbacks' => $tasksWithFeedbacks
+            'tasksWithFeedbacks' => $tasksWithFeedbacks,
+            'summary' => $summary
         ])->render();
     
         $pdfContent = Browsershot::html($html)

@@ -19,6 +19,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profiles/{profile}/edit', [ProfileController::class, 'edit'])->name('profiles.edit');
     Route::patch('/profiles/{profile}', [ProfileController::class, 'update'])->name('profiles.update');
     Route::get('profiles/{profile}', [ProfileController::class, 'show'])->name('profiles.show');
+    Route::get('profiles/{profile}/pdf', [ProfileController::class, 'generatePdf'])->name('profiles.pdf');
+
 
 
     Route::resource('tasks', TaskController::class);

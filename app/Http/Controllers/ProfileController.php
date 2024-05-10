@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Carbon;
+use Spatie\LaravelPdf\Facades\Pdf;
+use Spatie\Browsershot\Browsershot;
 
 
 class ProfileController extends Controller
@@ -102,9 +104,6 @@ class ProfileController extends Controller
         return Redirect::route('profiles.edit', $user->id)->with('status', 'profile-updated');
     }
 
-    /**
-     * Delete the user's account.
-     */
     public function destroy(Request $request): RedirectResponse
     {
         $request->validateWithBag('userDeletion', [
@@ -121,5 +120,27 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    public function generatePdf($profileId)
+    {
+        $user = User::findOrFail($profileId);
+        $tasksWithFeedbacks = $user->tasks()
+            ->whereHas('feedbacks')
+            ->with('feedbacks')
+            ->get();
+    
+        $html = view('profile.user_info_pdf', [
+            'user' => $user,
+            'tasksWithFeedbacks' => $tasksWithFeedbacks
+        ])->render();
+    
+        $pdfContent = Browsershot::html($html)
+            ->format('A4')
+            ->pdf();
+    
+        return response()->streamDownload(function () use ($pdfContent) {
+            echo $pdfContent;
+        }, "{$user->name}-review.pdf", ['Content-Type' => 'application/pdf']);
     }
 }

@@ -1,8 +1,13 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Profile Details') }}
-        </h2>
+        <div class="flex justify-between">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                {{ __('Profile Details') }}
+            </h2>
+            <a href="#" onclick="generateEvaluation({{ $profile->id }})" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
+                Generate Evaluation
+            </a>
+        </div>
     </x-slot>
 
     <div class="py-12">
@@ -162,6 +167,14 @@
                     console.error(error);
                 }
             });
+        }
+
+        function generateEvaluation(profileId) {
+            // Prevent the default link behavior
+            event.preventDefault();
+
+            // Redirect to the PDF generation route
+            window.location.href = "{{ route('profiles.pdf', $profile->id) }}";
         }
 
         $(document).ready(function() {

@@ -30,7 +30,7 @@
 
                 <div class="mb-4">
                     <x-input-label for="users" :value="__('Assign Users')" />
-                    <select id="users" name="users[]" multiple class="block w-full mt-1 border-gray-300 rounded-md shadow-sm">
+                    <select id="users" name="users[]" required multiple class="block w-full mt-1 border-gray-300 rounded-md shadow-sm">
                         @foreach ($users as $id => $name)
                             <option value="{{ $id }}" {{ in_array($id, $selectedUsers) ? 'selected' : '' }}>{{ $name }}</option>
                         @endforeach
@@ -54,9 +54,13 @@
     <x-slot name="scripts">
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                var select = document.getElementById('users');
-                // Initialize Select2, or any other multi-select plugin here
+                console.log("Initializing Select2");
+                $('#users').select2({
+                    placeholder: "Select users",
+                    allowClear: true
+                });
             });
+            
         </script>
     </x-slot>
 </x-app-layout>

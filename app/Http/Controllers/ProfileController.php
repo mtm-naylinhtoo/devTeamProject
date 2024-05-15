@@ -131,27 +131,31 @@ class ProfileController extends Controller
             ->with('feedbacks')
             ->get();
 
-        $feedbackText = "you are a manager, u get a member task complete information for summarization/evaluation. 
-        say what the manager would say and nothing else. the data is= Member: {$user->name} and their role is {$user->role}, BSE means Bridge System Engineer\n\n";
+        $feedbackText = "u are a project manager, u get a member completed task informations with rating and comment for u to judge. 
+        u need to provide the summarization and advise for the member.
+        also dont generate it like ur writing an email. this is not an email. just generate a paragraph with at most 500 words.
+        you dont need to give summarization for each task, read all the tasks, their feedbacks and generate what you think, as a project manager.
+        dont use syntax like 'as a project manger'. dont refer to urself at all.
+        dont need to give the rating urself again, u only need to use the ratings provided for ur summary.
+        you summary will be added in pdf. the pdf will be given to the member themself. so you need to address them directly.
+        the data is= Member: {$user->name} and their role is {$user->role}, BSE means Bridge System Engineer\n\n";
         foreach ($tasksWithFeedbacks as $task) {
             foreach ($task->feedbacks as $feedback) {
-                $feedbackText .= "Task: {$task->title}\n";
+                $feedbackText .= "Task: {$task->task->title}\n";
                 $feedbackText .= "Rating: {$feedback->rating}\n";
                 $feedbackText .= "Comment: {$feedback->comment}\n\n";
             }
         }
-
         // Make a POST request to OpenAI for summarization
         $response = Http::withHeaders([
             'Authorization' => 'Bearer key',
             'Content-Type' => 'application/json',
         ])->post('https://api.openai.com/v1/engines/gpt-3.5-turbo-instruct/completions', [
             'prompt' => $feedbackText,
-            'max_tokens' => 300, // Adjust as needed
+            'max_tokens' => 500, // Adjust as needed
         ]);
         // Extract the summary from the API response
         $summary = json_decode($response->getBody(), true)['choices'][0]['text'];
-        
         $html = view('profile.user_info_pdf', [
             'user' => $user,
             'tasksWithFeedbacks' => $tasksWithFeedbacks,

@@ -4,9 +4,11 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Profile Details') }}
             </h2>
-            <a href="#" onclick="generateEvaluation({{ $profile->id }})" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
-                Generate Evaluation
-            </a>
+            @if ($profile->hasFeedbacks() && auth()->user()->isAdmin() && permission_allow(auth()->user(), $profile))
+                <a href="#" onclick="generateEvaluation({{ $profile->id }})" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
+                    Generate Evaluation
+                </a>
+            @endif
         </div>
     </x-slot>
 
@@ -57,7 +59,7 @@
                                 @endif
                             </div>
                             <div class="mt-4">
-                                @if (auth()->user()->isAdmin() && $detail->status === 'completed')
+                                @if (auth()->user()->isAdmin() && $detail->status === 'completed' && permission_allow(auth()->user(),$profile))
                                     @if (!$detail->feedback_given)
                                         You can start reviewing now:
                                         <button onclick="openFeedbackModal({{ $detail->id }})" class="border border-gray-300 hover:bg-black hover:text-white text-black font-bold py-2 px-4 ml-2 rounded">
@@ -80,6 +82,12 @@
                     @endforeach
                 </div>
             </div>
+        </div>
+    </div>
+    <!-- Spinner Overlay -->
+    <div id="loadingSpinner" class="fixed inset-0 bg-gray-800 bg-opacity-50 z-50 hidden flex justify-center items-center">
+        <div class="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full" role="status">
+            <span class="visually-hidden"></span>
         </div>
     </div>
 
@@ -170,10 +178,8 @@
         }
 
         function generateEvaluation(profileId) {
-            // Prevent the default link behavior
             event.preventDefault();
-
-            // Redirect to the PDF generation route
+            $('#loadingSpinner').removeClass('hidden');
             window.location.href = "{{ route('profiles.pdf', $profile->id) }}";
         }
 

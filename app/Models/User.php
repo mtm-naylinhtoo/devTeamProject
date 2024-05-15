@@ -50,6 +50,11 @@ class User extends Authenticatable
         return $this->hasMany(Feedback::class);
     }
 
+    public function hasfeedbacks()
+    {
+        return $this->tasks()->whereHas('feedbacks')->exists();
+    }
+
 
     /**
      * Get the attributes that should be cast.

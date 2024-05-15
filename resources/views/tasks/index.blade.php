@@ -34,9 +34,6 @@
                                     Task Name
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Description
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Due Date
                                 </th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -53,10 +50,7 @@
                             @foreach ($tasks as $task)
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <a href="{{ route('tasks.show', $task->id) }}" class="text-black hover:underline">{{ $task->title }}</a>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    {{ shortenDescription($task->description) }}
+                                    <a href="{{ route('tasks.show', $task->id) }}" class="text-black hover:underline">{{ shortenDescription($task->title) }}</a>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     {{ $task->due_date}}

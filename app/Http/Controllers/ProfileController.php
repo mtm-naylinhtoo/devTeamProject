@@ -26,21 +26,19 @@ class ProfileController extends Controller
         return view('profile.index', compact('profiles'));
     }
 
-    public function show(User $profile)
+    public function show(Request $request, User $profile)
     {
-        $currentMonth = now()->month;
-        $currentYear = now()->year;
-        $task_details = $profile->tasks()->whereHas('task', function ($query) use ($currentMonth, $currentYear) {
-            $query->whereYear('due_date', $currentYear)->whereMonth('due_date', $currentMonth);
-        })->get();
+        $currentMonth = $request->input('month', now()->month);
+        $currentYear = $request->input('year', now()->year);
 
+        $task_details = $profile->sortedTasks($currentYear, $currentMonth);
+    
         $task_details->each(function ($detail) {
-            // Filter the feedbacks relation to check if there's any feedback from the authenticated user
             $detail->feedback_given = $detail->feedbacks->contains(function ($feedback) {
                 return $feedback->user_id === auth()->id();
             });
         });
-
+    
         return view('profile.show', compact('profile', 'task_details'));
     }
 
@@ -48,17 +46,12 @@ class ProfileController extends Controller
     {
         $user = $profile;
 
-        // Check if the authenticated user has permission to edit this profile
         if (!auth()->user()->isAdmin() && auth()->user()->id !== $profile->id) {
-            // Redirect back with an error message
             return redirect()->route('profiles.index')->with('error', 'You are not authorized to edit this profile.');
         }
-        // Check if the user's role allows editing
         if (auth()->user()->isAdmin()) {
-            // User has permission to edit the role
             $editableRoles = ['manager', 'bse', 'leader', 'sub-leader', 'senior-developer', 'junior-developer'];
         } else {
-            // User does not have permission to edit the role
             $editableRoles = [];
         }
 
@@ -68,10 +61,6 @@ class ProfileController extends Controller
         ]);
     }
 
-
-    /**
-     * Update the user's profile information.
-     */
     public function update(ProfileUpdateRequest $request, $id): RedirectResponse
     {
         $user = User::findOrFail($id);

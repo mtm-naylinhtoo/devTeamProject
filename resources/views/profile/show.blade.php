@@ -28,8 +28,37 @@
     <div class="py-2">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="px-6 py-10 border-b border-gray-200">
-                    <h2 class="font-semibold text-lg">Tasks Assigned</h2>
+                <div class="px-6 py-8 border-b border-gray-200">
+                    <div class="flex justify-between">
+                        <h2 class="font-semibold text-lg pt-2">Tasks Assigned</h2>
+                        <form method="GET" action="{{ route('profiles.show', $profile->id) }}" class="flex items-center">
+                            <div class="mr-2">
+                                <label for="month" class="sr-only">Month</label>
+                                <select name="month" id="month" class="border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50">
+                                    @for ($m = 1; $m <= 12; $m++)
+                                        <option value="{{ $m }}" {{ $m == request('month', now()->month) ? 'selected' : '' }}>
+                                            {{ \Carbon\Carbon::create()->month($m)->format('F') }}
+                                        </option>
+                                    @endfor
+                                </select>
+                            </div>
+                            <div class="mr-2">
+                                <label for="year" class="sr-only">Year</label>
+                                <select name="year" id="year" class="border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50">
+                                    @for ($y = now()->year - 5; $y <= now()->year + 5; $y++)
+                                        <option value="{{ $y }}" {{ $y == request('year', now()->year) ? 'selected' : '' }}>
+                                            {{ $y }}
+                                        </option>
+                                    @endfor
+                                </select>
+                            </div>
+                            <div>
+                                <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
+                                    Filter
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                     @foreach ($task_details as $detail)
                         <div class="border rounded-lg p-4 my-8 ">
                             <div class="flex justify-between items-center">
@@ -37,6 +66,7 @@
                                     <h3 class="font-semibold text-lg mb-4">
                                         <a href="{{ route('tasks.show', $detail->task->id) }}">{{ $detail->task->title }}</a>
                                     </h3>
+                                    <p class="pb-4 font-semibold">Deadline: {{ $detail->task->due_date }}</p>
                                     <p>{{ $detail->task->description }}</p>
                                 </div>
                                 @if (auth()->user()->id === $profile->id)

@@ -45,9 +45,30 @@ class User extends Authenticatable
         return $this->hasMany(TaskDetail::class);
     }
 
+    public function unfinishedTasks()
+    {
+        return $this->hasMany(TaskDetail::class)->where('status', '!=', 'completed');
+    }
+
     public function sortedTasks($year = null, $month = null)
     {
+
         $query = $this->tasks()
+                    ->join('tasks', 'task_details.task_id', '=', 'tasks.id')
+                    ->select('task_details.*')
+                    ->orderBy('tasks.due_date', 'asc');
+
+        if ($year !== null && $month !== null) {
+            $query->whereYear('tasks.due_date', $year)
+                ->whereMonth('tasks.due_date', $month);
+        }
+
+        return $query->get();
+    }
+
+    public function sortedUnfinishedTasks($year = null, $month = null)
+    {
+        $query = $this->unfinishedTasks()
                     ->join('tasks', 'task_details.task_id', '=', 'tasks.id')
                     ->select('task_details.*')
                     ->orderBy('tasks.due_date', 'asc');

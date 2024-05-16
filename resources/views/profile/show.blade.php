@@ -91,6 +91,7 @@
                             <div class="mt-4">
                                 @if (auth()->user()->isAdmin() && $detail->status === 'completed' && permission_allow(auth()->user(),$profile))
                                     @if (!$detail->feedback_given)
+                                        <hr style="border-top: 1px dashed #ccc; margin: 10px 0; padding-bottom:4px;">
                                         You can start reviewing now:
                                         <button onclick="openFeedbackModal({{ $detail->id }})" class="border border-gray-300 hover:bg-black hover:text-white text-black font-bold py-2 px-4 ml-2 rounded">
                                             Review

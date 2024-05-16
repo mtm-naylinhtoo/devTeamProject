@@ -12,7 +12,8 @@
                     <div>
                         <h2 class="text-lg font-semibold mb-4">{{ $task->title }}</h2>
                         <p class="mb-4"><strong>Link:</strong> {{ $task->url }}</p>
-                        <p><strong>Due Date:</strong> {{ $task->due_date }}</p>
+                        <p class="mb-4"><strong>Due Date:</strong> {{ $task->due_date }}</p>
+                        <a href="{{ route('tasks.edit', $task->id) }}" class="text-black underline">Edit</a>
                     </div>
                     @if ($userDetail)
                     <div>
@@ -33,7 +34,6 @@
                     <p class="mb-4">{{ $task->description }}</p>
                 </div>
             </div>
-
 
             <div class="mt-12">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">

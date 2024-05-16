@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\TaskDetail;
+use App\Models\User;
 
 class DashboardController extends Controller
 {
@@ -22,6 +23,20 @@ class DashboardController extends Controller
         $inProgressCount = $all_task_details->where('status', 'in_progress')->count();
         $pendingCount = $all_task_details->where('status', 'pending')->count();
 
-        return view('dashboard', compact('task_details', 'completedCount', 'inProgressCount', 'pendingCount'));
+        // $usersWithCompletedTasks = User::whereHas('tasks', function ($query) {
+        //     $query->where('status', 'completed');
+        // })->whereDoesntHave('feedbacks', function ($query) {
+        //     $query->where('user_id', auth()->id());
+        // })->get();
+
+        $usersWithCompletedTasks = User::whereHas('tasks', function ($query) {
+            $query->where('status', 'completed');
+        })->whereDoesntHave('feedbacks', function ($query) {
+            $query->where('user_id', auth()->id());
+        })->get()->filter(function ($user) {
+            return permission_allow(auth()->user(), $user);
+        });
+
+        return view('dashboard', compact('task_details', 'completedCount', 'inProgressCount', 'pendingCount', 'usersWithCompletedTasks'));
     }
 }

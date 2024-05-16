@@ -39,7 +39,7 @@
                                 @if (auth::user()->isAdmin())
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         @if ((Auth::user()->isAdmin() && permission_allow(auth()->user(),$profile)) || Auth::user()->id === $profile->id)
-                                        <a href="{{ route('profiles.edit', $profile->id) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                                            <a href="{{ route('profiles.edit', $profile->id) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
                                         @endif
                                     </td>
                                 @endif

@@ -33,6 +33,19 @@ if (!function_exists('permission_allow')) {
         $user1RolePermission = $roles[$user1->role] ?? PHP_INT_MAX;
         $user2RolePermission = $roles[$user2->role] ?? PHP_INT_MAX;
 
-        return $user1RolePermission < $user2RolePermission;
+        if ($user1RolePermission < $user2RolePermission) {
+            // Check if user1 is a leader or sub-leader and user2 is a senior-developer or junior-developer
+            if (($user1->role === 'leader' || $user1->role === 'sub-leader') && 
+                ($user2->role === 'senior-developer' || $user2->role === 'junior-developer')) {
+                // Check if user2 is assigned to user1
+                return $user2->assigned_to === $user1->id;
+            } else {
+                // If not in the leader-developer relationship, return true based on role permission
+                return true;
+            }
+        } else {
+            // If user1 does not have higher permission, return false
+            return false;
+        }
     }
 }

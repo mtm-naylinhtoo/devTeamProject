@@ -131,7 +131,7 @@ class TaskController extends Controller
             );
         }
     
-        return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
+        return redirect()->route('tasks.show', $task)->with('success', 'Task updated successfully.');
     }
 
     public function update_status(Request $request, $task_detail_id)

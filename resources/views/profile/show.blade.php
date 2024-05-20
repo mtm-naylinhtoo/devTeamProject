@@ -21,6 +21,25 @@
                     <p class="py-4">Role: {{ ucfirst($profile->role) }}</p>
                     <p>Email: {{ $profile->email }}</p>
                 </div>
+                @if(auth()->user()->role == 'manager' && ($profile->role == "junior-developer" || $profile->role == "senior-developer"))
+                    <div class="px-6 py-6">
+                        <form method="POST" action="{{ route('profiles.assign_leader', $profile->id) }}" data-userid="{{ $profile->id }}">
+                            @csrf
+                            @method('PUT')
+                            <div>
+                                <label for="leaderSelect">Assigned to:</label>
+                                <select id="leaderSelect" name="assigned_to" class="ml-4 appearance-none bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:border-gray-500">
+                                    <option value="">Select a Leader</option>
+                                    @foreach ($leaders as $leader)
+                                        <option value="{{ $leader->id }}" {{ old('assigned_to', $profile->assigned_to) == $leader->id ? 'selected' : '' }}>
+                                            {{ $leader->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -64,7 +83,7 @@
                             <div class="flex justify-between items-center">
                                 <div class="pr-12">
                                     <h3 class="font-semibold text-lg mb-4">
-                                        <a href="{{ route('tasks.show', $detail->task->id) }}">{{ $detail->task->title }}</a>
+                                        <a href="{{ route('tasks.show', $detail->task->id) }}" class="hover:underline">{{ $detail->task->title }}</a>
                                     </h3>
                                     <p class="pb-4 font-semibold">Deadline: {{ $detail->task->due_date }}</p>
                                     <p>{{ $detail->task->description }}</p>
@@ -235,6 +254,25 @@
                     },
                     error: function(xhr) {
                         $(statusMessageId).text('Error updating status');
+                    }
+                });
+            });
+
+            $('select[name="assigned_to"]').change(function() {
+                var form = $(this).closest('form');
+                var userId = form.data('userid');
+                var leaderId = $(this).val();
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'PUT', 
+                    data: {
+                        assigned_to: leaderId
+                    },
+                    success: function(response) {
+                        console.log(response);
+                    },
+                    error: function(xhr) {
+                        console.error('Error assigning leader');
                     }
                 });
             });

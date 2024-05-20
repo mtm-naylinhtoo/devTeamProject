@@ -27,16 +27,30 @@ class DashboardController extends Controller
         //     $query->where('status', 'completed');
         // })->whereDoesntHave('feedbacks', function ($query) {
         //     $query->where('user_id', auth()->id());
-        // })->get();
+        // })->get()->filter(function ($user) {
+        //     return permission_allow(auth()->user(), $user);
+        // });
 
-        $usersWithCompletedTasks = User::whereHas('tasks', function ($query) {
+        // Fetch users with completed tasks
+        $usersWithCompletedTasksQuery = User::whereHas('tasks', function ($query) {
             $query->where('status', 'completed');
         })->whereDoesntHave('feedbacks', function ($query) {
             $query->where('user_id', auth()->id());
-        })->get()->filter(function ($user) {
+        });
+
+        // Conditionally add the where clause for assigned_to based on the user's role
+        if ($user->role !== 'manager') {
+            $usersWithCompletedTasksQuery->where('assigned_to', auth()->id());
+        }
+
+        $usersWithCompletedTasks = $usersWithCompletedTasksQuery->get()->filter(function ($user) {
             return permission_allow(auth()->user(), $user);
         });
 
-        return view('dashboard', compact('task_details', 'completedCount', 'inProgressCount', 'pendingCount', 'usersWithCompletedTasks'));
+        $usersWithoutLeader = User::whereNull('assigned_to')
+        ->whereIn('role', ['junior-developer', 'senior-developer'])
+        ->get();
+
+        return view('dashboard', compact('task_details', 'completedCount', 'inProgressCount', 'pendingCount', 'usersWithCompletedTasks', 'usersWithoutLeader'));
     }
 }

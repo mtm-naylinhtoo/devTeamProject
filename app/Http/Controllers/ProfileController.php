@@ -32,14 +32,14 @@ class ProfileController extends Controller
         $currentYear = $request->input('year', now()->year);
 
         $task_details = $profile->sortedTasks($currentYear, $currentMonth);
-    
+        $leaders = User::whereIn('role', ['leader', 'sub-leader'])->get(['id', 'name']);
         $task_details->each(function ($detail) {
             $detail->feedback_given = $detail->feedbacks->contains(function ($feedback) {
                 return $feedback->user_id === auth()->id();
             });
         });
     
-        return view('profile.show', compact('profile', 'task_details'));
+        return view('profile.show', compact('profile', 'task_details', 'leaders'));
     }
 
     public function edit(User $profile)
@@ -110,6 +110,18 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    public function assignLeader(Request $request, $userId)
+    {
+        $user = User::find($userId);
+        if ($user) {
+            $user->assigned_to = $request->assigned_to;
+            $user->save();
+            return response()->json(['message' => 'Leader assigned successfully']);
+        }
+
+        return response()->json(['message' => 'User not found'], 404);
     }
 
     public function generatePdf($profileId)

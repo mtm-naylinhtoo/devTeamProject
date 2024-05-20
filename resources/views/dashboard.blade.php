@@ -14,7 +14,7 @@
                         <h2 class="font-semibold text-lg pt-2">Tasks Status</h2>
                     </div>
                     <div class="flex justify-between">
-                        <span>you can view all your tasks <a href="{{ route('profiles.show', auth()->user()->id) }}" class="underline text-black hover:underline">here.</a></span>
+                        <span>You can view all your tasks <a href="{{ route('profiles.show', auth()->user()->id) }}" class="underline text-black hover:underline">here.</a></span>
                     </div>
                     <div class="flex py-8">
                         <div class="bg-gray-200 px-4 py-2 rounded-lg">
@@ -41,14 +41,14 @@
                         </div>
                         <div class="py-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
                             @forelse ($usersWithoutLeader as $user)
-                                <div class="border rounded-lg p-4 mt-6">
+                                <a href="{{ route('profiles.show', $user->id) }}" class="border rounded-lg p-4 mt-6 block hover:bg-gray-100">
                                     <div class="flex justify-between items-center">
                                         <div class="pr-12">
-                                            <a href="{{ route('profiles.show', $user->id) }}" class="font-semibold text-black hover:underline">{{ $user->name }}</a>
+                                            <span class="font-semibold text-black">{{ $user->name }}</span>
                                             <p>Role: {{ ucfirst($user->role) }}</p>
                                         </div>
                                     </div>
-                                </div>
+                                </a>
                             @empty
                                 <div class="pt-12 pb-4">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block ml-1 mb-1 text-green-600" viewBox="0 0 20 20" fill="currentColor">
@@ -70,14 +70,14 @@
                         </div>
                         <div class="py-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
                             @forelse ($usersWithCompletedTasks as $user)
-                                <div class="border rounded-lg p-4 mt-6">
+                                <a href="{{ route('profiles.show', $user->id) }}" class="border rounded-lg p-4 mt-6 block hover:bg-gray-100">
                                     <div class="flex justify-between items-center">
                                         <div class="pr-12">
-                                            <a href="{{ route('profiles.show', $user->id) }}" class="font-semibold text-black hover:underline">{{ $user->name }}</a>
+                                            <span class="font-semibold text-black">{{ $user->name }}</span>
                                             <p>Role: {{ ucfirst($user->role) }}</p>
                                         </div>
                                     </div>
-                                </div>
+                                </a>
                             @empty
                                 <div class="pt-12 pb-4">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block ml-1 mb-1 text-green-600" viewBox="0 0 20 20" fill="currentColor">
@@ -91,27 +91,24 @@
                 </div>
             @endif
 
-
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg my-12">
                 <div class="px-6 py-8 border-b border-gray-200">
                     <div class="flex justify-between">
                         <h2 class="font-semibold text-lg">Tasks you haven't finished</h2>
                     </div>
                     @forelse ($task_details as $detail)
-                    <div class="border rounded-lg p-4 my-8">
-                        <div class="flex justify-between items-center">
-                            <div class="pr-12">
-                                <h3 class="font-semibold text-lg mb-4">
-                                    <a href="{{ route('tasks.show', $detail->task->id) }}" class="hover:underline">{{ $detail->task->title }}</a>
-                                </h3>
-                                <p class="pb-4 font-semibold">Deadline: {{ $detail->task->due_date }}</p>
-                                <p>{{ $detail->task->description }}</p>
+                        <a href="{{ route('tasks.show', $detail->task->id) }}" class="border rounded-lg p-4 my-8 block hover:bg-gray-100">
+                            <div class="flex justify-between items-center">
+                                <div class="pr-12">
+                                    <h3 class="font-semibold text-lg mb-4">{{ $detail->task->title }}</h3>
+                                    <p class="pb-4 font-semibold">Deadline: {{ $detail->task->due_date }}</p>
+                                    <p>{{ $detail->task->description }}</p>
+                                </div>
+                                <span id="status-{{ $detail->user_id }}" class="text-sm font-semibold {{ $detail->status === 'completed' ? 'text-green-600' : ($detail->status === 'in_progress' ? 'text-yellow-600' : 'text-gray-600') }}">
+                                    {{ ucfirst($detail->status) }}
+                                </span>
                             </div>
-                            <span id="status-{{ $detail->user_id }}" class="text-sm font-semibold {{ $detail->status === 'completed' ? 'text-green-600' : ($detail->status === 'in_progress' ? 'text-yellow-600' : 'text-gray-600') }}">
-                                {{ ucfirst($detail->status) }}
-                            </span>
-                        </div>
-                    </div>
+                        </a>
                     @empty
                         <div class="pt-12 pb-4">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block ml-1 mb-1 text-green-600" viewBox="0 0 20 20" fill="currentColor">
@@ -122,7 +119,6 @@
                     @endforelse
                 </div>
             </div>
-
         </div>
     </div>
 </x-app-layout>

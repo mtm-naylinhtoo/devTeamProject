@@ -34,6 +34,45 @@
             @keyframes spinner-border {
                 to { transform: rotate(360deg); }
             }
+
+            .tooltip {
+                position: relative;
+                display: inline-block;
+                cursor: pointer;
+            }
+
+            .tooltip .tooltiptext {
+                visibility: hidden;
+                width: 200px;
+                background-color: black;
+                color: #fff;
+                text-align: center;
+                border-radius: 6px;
+                padding: 5px 0;
+                position: absolute;
+                z-index: 1;
+                bottom: 125%; /* Position the tooltip above the text */
+                left: 50%;
+                margin-left: -100px; /* Use margin to center the tooltip */
+                opacity: 0;
+                transition: opacity 0.3s;
+            }
+
+            .tooltip .tooltiptext::after {
+                content: "";
+                position: absolute;
+                top: 100%; /* At the bottom of the tooltip */
+                left: 50%;
+                margin-left: -5px;
+                border-width: 5px;
+                border-style: solid;
+                border-color: black transparent transparent transparent;
+            }
+
+            .tooltip:hover .tooltiptext {
+                visibility: visible;
+                opacity: 1;
+            }
     
         </style>
     </head>

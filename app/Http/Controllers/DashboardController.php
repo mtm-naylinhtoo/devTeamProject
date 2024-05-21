@@ -23,14 +23,6 @@ class DashboardController extends Controller
         $inProgressCount = $all_task_details->where('status', 'in_progress')->count();
         $pendingCount = $all_task_details->where('status', 'pending')->count();
 
-        // $usersWithCompletedTasks = User::whereHas('tasks', function ($query) {
-        //     $query->where('status', 'completed');
-        // })->whereDoesntHave('feedbacks', function ($query) {
-        //     $query->where('user_id', auth()->id());
-        // })->get()->filter(function ($user) {
-        //     return permission_allow(auth()->user(), $user);
-        // });
-
         // Fetch users with completed tasks
         $usersWithCompletedTasksQuery = User::whereHas('tasks', function ($query) {
             $query->where('status', 'completed');

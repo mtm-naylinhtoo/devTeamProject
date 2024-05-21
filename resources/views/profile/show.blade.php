@@ -2,11 +2,12 @@
     <x-slot name="header">
         <div class="flex justify-between">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Profile Details') }}
+                {{ __('User Details') }}
             </h2>
             @if ($profile->hasFeedbacks() && auth()->user()->isAdmin() && permission_allow(auth()->user(), $profile))
-                <a href="#" onclick="generateEvaluation({{ $profile->id }})" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
+                <a href="#" onclick="generateEvaluation({{ $profile->id }})" class="tooltip inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
                     Generate Evaluation
+                    <span class="tooltiptext">This will generate an evaluation report for the user using AI.</span>
                 </a>
             @endif
         </div>
@@ -242,8 +243,30 @@
 
         function generateEvaluation(profileId) {
             event.preventDefault();
-            // $('#loadingSpinner').removeClass('hidden');
-            window.location.href = "{{ route('profiles.pdf', $profile->id) }}";
+            $('#loadingSpinner').removeClass('hidden');
+            
+            $.ajax({
+                url: "{{ route('profiles.pdf', $profile->id) }}",
+                method: 'GET',
+                xhrFields: {
+                    responseType: 'blob'
+                },
+                success: function(data, status, xhr) {
+                    var blob = new Blob([data], { type: 'application/pdf' });
+                    var link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = "{{ $profile->name }}-review.pdf";
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                },
+                error: function() {
+                    console.log("Error generating PDF");
+                },
+                complete: function() {
+                    $('#loadingSpinner').addClass('hidden');
+                }
+            });
         }
 
         $(document).ready(function() {

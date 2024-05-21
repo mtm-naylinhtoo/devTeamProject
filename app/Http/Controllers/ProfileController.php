@@ -124,24 +124,25 @@ class ProfileController extends Controller
 
         return response()->json(['message' => 'User not found'], 404);
     }
-
+    
     public function generatePdf($profileId)
     {
         $user = User::findOrFail($profileId);
+        $currentYear = now()->year;
         $tasksWithFeedbacks = $user->tasks()
             ->whereHas('feedbacks')
+            ->whereYear('created_at', $currentYear)
             ->with('feedbacks')
             ->get();
-
-        $feedbackText = "u are a project manager, u get a member completed task informations with rating and comment for u to judge. 
-        u need to provide the summarization and advise for the member.
-        also dont generate it like ur writing an email. this is not an email. just generate a paragraph with between 500 to 1000 words.
-        no need to add best regard or sincerely dont refer to urself. its about them not u. also dont need to mention the individual tasks.
-        you dont need to give summarization for each task, read all the tasks, their feedbacks and generate what you think, as a project manager.
-        dont use syntax like 'as a project manger'. dont refer to urself at all. you dont need to mention their name also.
-        dont need to give the rating urself again, u only need to use the ratings provided for ur summary.
-        you summary will be added in pdf. the pdf will be given to the member themself. so you need to address them directly.
-        the data is= Member: {$user->name} and their role is {$user->role}, BSE means Bridge System Engineer\n\n";
+    
+        $feedbackText = "You are a project manager reviewing a team member's completed tasks, including ratings and comments. 
+            Your goal is to summarize the feedback and provide advice for the team member. 
+            Write a single paragraph between 500 to 1000 words. Do not format it as an email or refer to yourself. 
+            Focus on addressing the team member directly and offering constructive advice. 
+            Do not list individual tasks or their specific feedback; instead, provide an overall assessment based on all tasks and ratings. 
+            You can use <br> to separate ideas for clarity. The summary will be included in a PDF and given to the team member.
+            Don't use ** ** or ## for header title, in fact don't use header titles at all.
+            Here is the data: Member: {$user->name}, Role: {$user->role} (BSE means Bridge System Engineer).\n\n";
         foreach ($tasksWithFeedbacks as $task) {
             foreach ($task->feedbacks as $feedback) {
                 $feedbackText .= "Task: {$task->task->title}\n";
@@ -167,23 +168,24 @@ class ProfileController extends Controller
                 'top_p' => 1,
                 'stop' => null
             ]);
-
+    
             $summary = json_decode($response->getBody(), true)['choices'][0]['message']["content"];
             $html = view('profile.user_info_pdf', [
                 'user' => $user,
                 'tasksWithFeedbacks' => $tasksWithFeedbacks,
                 'summary' => $summary
             ])->render();
-
+    
             $pdfContent = Browsershot::html($html)
                 ->format('A4')
                 ->pdf();
-
-            return response()->streamDownload(function () use ($pdfContent) {
-                echo $pdfContent;
-            }, "{$user->name}-review.pdf", ['Content-Type' => 'application/pdf']);
+    
+            return response($pdfContent)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', "attachment; filename=\"{$user->name}-review.pdf\"");
         } catch (\Exception $e) {
-            return redirect()->route('profiles.show', $profileId)->with('error', 'Failed to generate PDF: ' . $e->getMessage());
+            return redirect()->route('profiles.show', $profileId)->with('error', 'Failed to generate PDF: Try after after a few seconds.');
         }
     }
+    
 }

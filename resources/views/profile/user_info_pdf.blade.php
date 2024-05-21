@@ -38,10 +38,20 @@
             <h2>Summary</h2>
         </div>
             <div class="card-body">
-                <p>{{ $summary }}</p>
+                {!! nl2br(e($summary)) !!}
             </div>
+            <br>
             <hr style="border-top: 1px dashed #ccc; margin: 10px 0;">
-            <p style="font-size:10px">Powered by devTeam MTM</p>
+            <p style="font-size:10px;">Powered by devTeam MTM</p>
     </div>
 </body>
 </html>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let summaryElement = document.querySelector('.card-body');
+        if (summaryElement) {
+            summaryElement.innerHTML = summaryElement.innerHTML
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // Convert **text** to <strong>text</strong>
+        }
+    });
+</script>

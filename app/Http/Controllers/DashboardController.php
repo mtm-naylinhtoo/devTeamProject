@@ -12,6 +12,7 @@ class DashboardController extends Controller
     public function show()
     {
         $user = Auth::user();
+        $authUser = auth()->user();
         $currentMonth = now()->month;
         $currentYear = now()->year;
 
@@ -23,20 +24,25 @@ class DashboardController extends Controller
         $inProgressCount = $all_task_details->where('status', 'in_progress')->count();
         $pendingCount = $all_task_details->where('status', 'pending')->count();
 
-        // Fetch users with completed tasks
-        $usersWithCompletedTasksQuery = User::whereHas('tasks', function ($query) {
-            $query->where('status', 'completed');
-        })->whereDoesntHave('feedbacks', function ($query) {
-            $query->where('user_id', auth()->id());
+        // Fetch users with completed tasks but without feedback from the authenticated user for those tasks
+        $usersWithCompletedTasksQuery = User::whereHas('tasks', function ($query) use ($authUser) {
+            $query->where('status', 'completed')
+                ->whereDoesntHave('feedbacks', function ($feedbackQuery) use ($authUser) {
+                    $feedbackQuery->where('user_id', $authUser->id);
+                });
         });
 
         // Conditionally add the where clause for assigned_to based on the user's role
-        if ($user->role !== 'manager') {
-            $usersWithCompletedTasksQuery->where('assigned_to', auth()->id());
+        if ($authUser->role !== 'manager') {
+            $usersWithCompletedTasksQuery->where('assigned_to', $authUser->id);
         }
 
-        $usersWithCompletedTasks = $usersWithCompletedTasksQuery->get()->filter(function ($user) {
-            return permission_allow(auth()->user(), $user);
+        // Execute the query
+        $allUsers = $usersWithCompletedTasksQuery->get();
+
+        // Filter users based on permissions
+        $usersWithCompletedTasks = $allUsers->filter(function ($user) use ($authUser) {
+            return permission_allow($authUser, $user);
         });
 
         $usersWithoutLeader = User::whereNull('assigned_to')

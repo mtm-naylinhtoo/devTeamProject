@@ -10,11 +10,9 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 border-b border-gray-200">
                     <div class="flex justify-between mb-8">
-                        @if (Auth::user()->isAdmin())
-                            <a href="{{ route('tasks.create') }}" class="text-white bg-black py-2 px-4 rounded">
-                                Create New Task
-                            </a>
-                        @endif
+                        <a href="{{ route('tasks.create') }}" class="text-white bg-black py-2 px-4 rounded">
+                            Create New Task
+                        </a>
                         <div class="flex justify-between">
                             <form action="{{ route('tasks.index') }}" method="GET" class="flex">
                                 <select name="month" class="border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 rounded-md">

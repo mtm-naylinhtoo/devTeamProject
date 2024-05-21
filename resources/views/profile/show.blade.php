@@ -14,13 +14,26 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            @if (session('error'))
+                <div class="bg-red-500 text-white p-4 mb-4 rounded">
+                    {{ session('error') }}
+                </div>
+            @endif
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="px-6 py-10 border-b border-gray-200">
                     <h3 class="font-semibold text-lg mb-4">Profile Information</h3>
                     <p>Name: {{ $profile->name }}</p>
                     <p class="py-4">Role: {{ ucfirst($profile->role) }}</p>
                     <p>Email: {{ $profile->email }}</p>
+                    @if((Auth::user()->isAdmin() && permission_allow(auth()->user(),$profile)) || Auth::user()->id === $profile->id)
+                        <div class="pt-4">
+                            <a href="{{ route('profiles.edit', $profile->id) }}" class="text-black">
+                                <i class="fas fa-pencil-alt"></i>
+                            </a>
+                        </div>
+                    @endif
                 </div>
+                
                 @if(auth()->user()->role == 'manager' && ($profile->role == "junior-developer" || $profile->role == "senior-developer"))
                     <div class="px-6 py-6">
                         <form method="POST" action="{{ route('profiles.assign_leader', $profile->id) }}" data-userid="{{ $profile->id }}">
@@ -229,7 +242,7 @@
 
         function generateEvaluation(profileId) {
             event.preventDefault();
-            $('#loadingSpinner').removeClass('hidden');
+            // $('#loadingSpinner').removeClass('hidden');
             window.location.href = "{{ route('profiles.pdf', $profile->id) }}";
         }
 

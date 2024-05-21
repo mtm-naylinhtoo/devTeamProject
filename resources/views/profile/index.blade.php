@@ -1,53 +1,50 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Profile List') }}
+            {{ __('Users') }}
         </h2>
     </x-slot>
 
     <div class="py-12">
         <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-            <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                <div class="p-6">
-                    <table class="w-full min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Name
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Email
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Role
-                                </th>
-                                @if (Auth::user()->isAdmin())
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Actions
-                                    </th>
-                                @endif
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach ($profiles as $profile)
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <a href="{{ route('profiles.show', $profile->id) }}" class="text-black hover:underline">{{ $profile->name }}</a>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ $profile->email }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap">{{ ucfirst($profile->role) }}</td>
-                                @if (auth::user()->isAdmin())
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        @if ((Auth::user()->isAdmin() && permission_allow(auth()->user(),$profile)) || Auth::user()->id === $profile->id)
-                                            <a href="{{ route('profiles.edit', $profile->id) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+            @php
+                $profiles = $profiles->sortByDesc(function ($profile) {
+                    return (Auth::user()->isAdmin() && permission_allow(auth()->user(), $profile)) || Auth::user()->id === $profile->id;
+                });
+            @endphp
+            <div class="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                @foreach ($profiles as $profile)
+                    @php
+                        $hasPermission = (Auth::user()->isAdmin() && permission_allow(auth()->user(), $profile)) || Auth::user()->id === $profile->id;
+                    @endphp
+                    <div class="bg-white border-2 {{ $hasPermission ? 'border-gray-200' : 'bg-gray-100 opacity-90' }} rounded-lg shadow-sm hover:bg-gray-100 transition">
+                        <a href="{{ route('profiles.show', $profile->id)}}" class="block p-6">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="flex">
+                                        @if (Auth::user()->id == $profile->id)
+                                            <span class="text-lg font-semibold text-gray-800">You</span>
+                                            @if ($hasPermission)
+                                                <svg class="w-6 h-6 ml-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                            @endif
+                                        @else
+                                        <span class="text-lg font-semibold text-gray-800">{{ $profile->name }}</span>
+                                        @if ($hasPermission)
+                                            <svg class="w-6 h-6 ml-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
                                         @endif
-                                    </td>
-                                @endif
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                                        @endif
+                                    </div>
+                                    <p class="text-gray-600">{{ $profile->email }}</p>
+                                    <p class="text-gray-600">{{ ucfirst($profile->role) }}</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                @endforeach
             </div>
         </div>
     </div>

@@ -27,38 +27,21 @@
         .card-body {
             font-size: 14px;
         }
-        .rating {
-            color: #555;
-        }
     </style>
 </head>
 <body>
-    <h2>User Information</h2>
-    <p><strong>Name:</strong> {{ $user->name }}</p>
+    <h2>{{ $user->name }}</h2>
     <p><strong>Position:</strong> {{ ucfirst($user->role) }}</p>
 
-    <h2>Summary</h2>
-    <p>{{ $summary }}</p>
-    
-    <h3>Feedbacks</h3>
-    @if ($tasksWithFeedbacks->isNotEmpty())
-        @foreach ($tasksWithFeedbacks as $task)
-            <div class="card">
-                <div class="card-header">
-                    Task: {{ $task->task->title }}
-                </div>
-                @foreach ($task->feedbacks as $feedback)
-                    <div class="card-body">
-                        <p><strong>Feedback from:</strong> {{ $feedback->user->name }}</p>
-                        <p><strong>Comment:</strong> {{ $feedback->comment }}</p>
-                        <p><strong>Rating:</strong> <span class="rating">{{ $feedback->rating }}</span>/5</p>
-                    </div>
-                    <hr style="border-top: 1px dashed #ccc; margin: 10px 0;">
-                @endforeach
+    <div class="card">
+        <div class="card-header">
+            <h2>Summary</h2>
+        </div>
+            <div class="card-body">
+                <p>{{ $summary }}</p>
             </div>
-        @endforeach
-    @else
-        <p>No tasks with feedbacks found.</p>
-    @endif
+            <hr style="border-top: 1px dashed #ccc; margin: 10px 0;">
+            <p style="font-size:10px">Powered by devTeam MTM</p>
+    </div>
 </body>
 </html>

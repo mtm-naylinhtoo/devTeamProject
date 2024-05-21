@@ -11,11 +11,11 @@ export default defineConfig({
             refresh: true,
         }),
     ],
-    // server: {
-    //     host: '0.0.0.0', // This allows Vite to be accessed from any IP address
-    //     port: 8000,      // Ensure this is the port you will use
-    //     hmr: {
-    //         host: '172.20.30.22', // This should remain localhost
-    //     },
-    // },
+    server: {
+        host: '0.0.0.0', // This allows Vite to be accessed from any IP address
+        port: 8000,      // Ensure this is the port you will use
+        hmr: {
+            host: '172.20.30.22', // This should remain localhost
+        },
+    },
 });

@@ -13,7 +13,9 @@
                         <h2 class="text-lg font-semibold mb-4">{{ $task->title }}</h2>
                         <p class="mb-4"><strong>Link:</strong> {{ $task->url }}</p>
                         <p class="mb-4"><strong>Due Date:</strong> {{ $task->due_date }}</p>
-                        <a href="{{ route('tasks.edit', $task->id) }}" class="text-black underline">Edit</a>
+                        <a href="{{ route('tasks.edit', $task->id) }}" class="text-black">
+                            <i class="fas fa-pencil-alt"></i>
+                        </a>
                     </div>
                     @if ($userDetail)
                     <div>

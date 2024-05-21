@@ -91,7 +91,8 @@ class ProfileController extends Controller
 
         $user->save();
 
-        return Redirect::route('profiles.edit', $user->id)->with('status', 'profile-updated');
+        return redirect()->route('profiles.show', $user)->with('success', 'Task updated successfully.');
+
     }
 
     public function destroy(Request $request): RedirectResponse
@@ -134,9 +135,10 @@ class ProfileController extends Controller
 
         $feedbackText = "u are a project manager, u get a member completed task informations with rating and comment for u to judge. 
         u need to provide the summarization and advise for the member.
-        also dont generate it like ur writing an email. this is not an email. just generate a paragraph with at most 500 words.
+        also dont generate it like ur writing an email. this is not an email. just generate a paragraph with between 500 to 1000 words.
+        no need to add best regard or sincerely dont refer to urself. its about them not u. also dont need to mention the individual tasks.
         you dont need to give summarization for each task, read all the tasks, their feedbacks and generate what you think, as a project manager.
-        dont use syntax like 'as a project manger'. dont refer to urself at all.
+        dont use syntax like 'as a project manger'. dont refer to urself at all. you dont need to mention their name also.
         dont need to give the rating urself again, u only need to use the ratings provided for ur summary.
         you summary will be added in pdf. the pdf will be given to the member themself. so you need to address them directly.
         the data is= Member: {$user->name} and their role is {$user->role}, BSE means Bridge System Engineer\n\n";
@@ -147,28 +149,41 @@ class ProfileController extends Controller
                 $feedbackText .= "Comment: {$feedback->comment}\n\n";
             }
         }
-        // Make a POST request to OpenAI for summarization
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer key',
-            'Content-Type' => 'application/json',
-        ])->post('https://api.openai.com/v1/engines/gpt-3.5-turbo-instruct/completions', [
-            'prompt' => $feedbackText,
-            'max_tokens' => 500, // Adjust as needed
-        ]);
-        // Extract the summary from the API response
-        $summary = json_decode($response->getBody(), true)['choices'][0]['text'];
-        $html = view('profile.user_info_pdf', [
-            'user' => $user,
-            'tasksWithFeedbacks' => $tasksWithFeedbacks,
-            'summary' => $summary
-        ])->render();
-    
-        $pdfContent = Browsershot::html($html)
-            ->format('A4')
-            ->pdf();
-    
-        return response()->streamDownload(function () use ($pdfContent) {
-            echo $pdfContent;
-        }, "{$user->name}-review.pdf", ['Content-Type' => 'application/pdf']);
+        
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer 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',
+                'Content-Type' => 'application/json',
+            ])->post('https://api.groq.com/openai/v1/chat/completions', [
+                'messages' => [
+                    [
+                        'role' => 'user',
+                        'content' => $feedbackText
+                    ]
+                ],
+                'model' => 'gemma-7b-it',
+                'temperature' => 1,
+                'max_tokens' => 1024,
+                'top_p' => 1,
+                'stop' => null
+            ]);
+
+            $summary = json_decode($response->getBody(), true)['choices'][0]['message']["content"];
+            $html = view('profile.user_info_pdf', [
+                'user' => $user,
+                'tasksWithFeedbacks' => $tasksWithFeedbacks,
+                'summary' => $summary
+            ])->render();
+
+            $pdfContent = Browsershot::html($html)
+                ->format('A4')
+                ->pdf();
+
+            return response()->streamDownload(function () use ($pdfContent) {
+                echo $pdfContent;
+            }, "{$user->name}-review.pdf", ['Content-Type' => 'application/pdf']);
+        } catch (\Exception $e) {
+            return redirect()->route('profiles.show', $profileId)->with('error', 'Failed to generate PDF: ' . $e->getMessage());
+        }
     }
 }

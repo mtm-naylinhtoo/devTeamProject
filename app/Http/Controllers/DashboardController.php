@@ -11,19 +11,18 @@ class DashboardController extends Controller
 {
     public function show()
     {
-        $user = Auth::user();
         $authUser = auth()->user();
         $currentMonth = now()->month;
         $currentYear = now()->year;
 
         // Retrieve tasks for the authenticated user
-        $all_task_details = $user->sortedTasks($currentYear, $currentMonth);
-        $task_details = $user->sortedUnfinishedTasks($currentYear, $currentMonth);
+        $all_task_details = $authUser->sortedTasks($currentYear, $currentMonth);
+        $task_details = $authUser->sortedUnfinishedTasks($currentYear, $currentMonth);
 
         $completedCount = $all_task_details->where('status', 'completed')->count();
         $inProgressCount = $all_task_details->where('status', 'in_progress')->count();
         $pendingCount = $all_task_details->where('status', 'pending')->count();
-
+        
         // Fetch users with completed tasks but without feedback from the authenticated user for those tasks
         $usersWithCompletedTasksQuery = User::whereHas('tasks', function ($query) use ($authUser) {
             $query->where('status', 'completed')

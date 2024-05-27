@@ -86,6 +86,11 @@ class User extends Authenticatable
         return $this->hasMany(Feedback::class);
     }
 
+    public function lateTasks()
+    {
+        return $this->hasMany(LateTask::class);
+    }
+
     public function hasfeedbacks()
     {
         return $this->tasks()->whereHas('feedbacks')->exists();

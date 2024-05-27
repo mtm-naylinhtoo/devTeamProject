@@ -24,5 +24,10 @@ class TaskDetail extends Model
         return $this->hasMany(Feedback::class);
     }
 
+    public function lateTask()
+    {
+        return $this->hasOne(LateTask::class);
+    }
+
     use HasFactory;
 }

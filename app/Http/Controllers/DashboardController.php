@@ -22,6 +22,7 @@ class DashboardController extends Controller
         $completedCount = $all_task_details->where('status', 'completed')->count();
         $inProgressCount = $all_task_details->where('status', 'in_progress')->count();
         $pendingCount = $all_task_details->where('status', 'pending')->count();
+        $lateTasksCount = $authUser->lateTasks()->count();
         
         // Fetch users with completed tasks but without feedback from the authenticated user for those tasks
         $usersWithCompletedTasksQuery = User::whereHas('tasks', function ($query) use ($authUser) {
@@ -48,6 +49,6 @@ class DashboardController extends Controller
         ->whereIn('role', ['junior-developer', 'senior-developer'])
         ->get();
 
-        return view('dashboard', compact('task_details', 'completedCount', 'inProgressCount', 'pendingCount', 'usersWithCompletedTasks', 'usersWithoutLeader'));
+        return view('dashboard', compact('task_details', 'completedCount', 'inProgressCount', 'pendingCount', 'lateTasksCount', 'usersWithCompletedTasks', 'usersWithoutLeader'));
     }
 }

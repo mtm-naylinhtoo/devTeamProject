@@ -31,7 +31,7 @@
 
                     @if(auth()->user()->id === $feedback->user_id)
                     <a href="{{ route('feedbacks.edit', $feedback->id) }}" class="text-black hover:text-indigo-900">
-                        <i class="fas fa-pencil-alt"></i>
+                        <i class="fa-solid fa-pen-to-square"></i>
                     </a>
                     @endif
                 </div>

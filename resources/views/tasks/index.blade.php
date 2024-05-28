@@ -27,6 +27,11 @@
                     </div>
                     <div class="py-6">
                         @foreach ($tasks as $task)
+                        @php
+                            $allCompleted = $task->details->every(function ($detail) {
+                                return $detail->status === 'completed';
+                            });
+                        @endphp
                         <a href="{{ route('tasks.show', $task->id) }}" class="block border border-gray-300 rounded-lg overflow-hidden mb-6 p-4 hover:bg-gray-50 transition">
                             <div class="flex justify-between items-center">
                                 <div>
@@ -50,6 +55,11 @@
                                 <div class="text-right">
                                     <p class="text-gray-600">
                                         Due Date: {{ $task->due_date }}
+                                    </p>
+                                    <p class="my-4">
+                                        <span class="font-semibold text-sm px-2.5 py-0.5 rounded border {{ $allCompleted ? 'bg-green-100 text-green-800 border-green-800' : 'bg-yellow-100 text-yellow-800 border-yellow-800' }}">
+                                            {{ $allCompleted ? 'Completed' : 'Still going' }}
+                                        </span>
                                     </p>
                                 </div>
                             </div>

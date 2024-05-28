@@ -1,48 +1,34 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('User Details') }}
-            </h2>
-            @if ($profile->hasFeedbacks() && auth()->user()->isAdmin() && permission_allow(auth()->user(), $profile))
-                <a href="#" onclick="generateEvaluation({{ $profile->id }})" class="tooltip inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
-                    Generate Evaluation
-                    <span class="tooltiptext">This will generate an evaluation report for the user using AI.</span>
-                </a>
-            @endif
-        </div>
-    </x-slot>
-
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            @if (session('error'))
-                <div class="bg-red-500 text-white p-4 mb-4 rounded">
-                    {{ session('error') }}
-                </div>
-            @endif
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="px-6 py-10 border-b border-gray-200">
-                    <h3 class="font-semibold text-lg mb-4">Profile Information</h3>
-                    <p>Name: {{ $profile->name }}</p>
-                    <p class="py-4">Role: {{ ucfirst($profile->role) }}</p>
-                    <p>Email: {{ $profile->email }}</p>
-                    @if((Auth::user()->isAdmin() && permission_allow(auth()->user(),$profile)) || Auth::user()->id === $profile->id)
-                        <div class="pt-4">
-                            <a href="{{ route('profiles.edit', $profile->id) }}" class="text-black">
-                                <i class="fas fa-pencil-alt"></i>
-                            </a>
+            <h2 class="text-gray-800 leading-tight pt-1">
+                @if((Auth::user()->isAdmin() && permission_allow(auth()->user(),$profile)) || Auth::user()->id === $profile->id)
+                    <div class="flex items-center space-x-0">
+                        <div class="flex flex-col">
+                            <span class="font-semibold text-xl">
+                                {{ $profile->name }}
+                            </span>
                         </div>
-                    @endif
-                </div>
-                
-                @if(auth()->user()->role == 'manager' && ($profile->role == "junior-developer" || $profile->role == "senior-developer"))
-                    <div class="px-6 py-6">
+                        <a href="{{ route('profiles.edit', $profile->id) }}" class="text-black pl-4">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </a>
+                    </div>
+                @else
+                    <div class="flex flex-col">
+                        <span class="font-semibold text-xl">
+                            {{ $profile->name }}
+                        </span>
+                    </div>
+                @endif
+            </h2>
+            @if(auth()->user()->role == 'manager' && ($profile->role == "junior-developer" || $profile->role == "senior-developer"))
+                    <div class="px-6">
                         <form method="POST" action="{{ route('profiles.assign_leader', $profile->id) }}" data-userid="{{ $profile->id }}">
                             @csrf
                             @method('PUT')
                             <div>
                                 <label for="leaderSelect">Assigned to:</label>
-                                <select id="leaderSelect" name="assigned_to" class="ml-4 appearance-none bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:border-gray-500">
+                                <select id="leaderSelect" name="assigned_to" class="ml-4 appearance-none bg-white border border-gray-400 hover:border-gray-500 px-4 pr-8 rounded shadow leading-tight focus:outline-none focus:border-gray-500">
                                     <option value="">Select a Leader</option>
                                     @foreach ($leaders as $leader)
                                         <option value="{{ $leader->id }}" {{ old('assigned_to', $profile->assigned_to) == $leader->id ? 'selected' : '' }}>
@@ -53,19 +39,39 @@
                             </div>
                         </form>
                     </div>
-                @endif
-            </div>
+            @endif
+            @if ($profile->hasFeedbacks() && auth()->user()->isAdmin() && permission_allow(auth()->user(), $profile))
+                <a href="#" onclick="generateEvaluation({{ $profile->id }})" class="tooltip flex items-center justify-center px-4 py-2 bg-gradient-to-r from-purple-500 to-green-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:from-purple-600 hover:to-green-600 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
+                    <span class="tooltiptext">This will generate an evaluation report for the user using generative AI.</span>
+                    <span>Generate Evaluation</span>
+                </a>
+            @endif
         </div>
-    </div>
+    </x-slot>
 
-    <div class="py-2">
+    <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="px-6 py-8 border-b border-gray-200">
                     <div class="flex justify-between">
-                        <h2 class="font-semibold text-lg pt-2">Tasks Assigned</h2>
-                        <form method="GET" action="{{ route('profiles.show', $profile->id) }}" class="flex items-center">
-                            <div class="mr-2">
+                        <h2 class="font-semibold text-lg pt-2">Tasks for {{$profile->name}}</h2>
+                        <form id="filterForm" method="GET" action="{{ route('profiles.show', $profile->id) }}" class="flex items-center">
+                            
+                            <span>Shortcuts:</span>
+                            <div class="flex items-center space-x-2 mr-2 ml-2">
+                                <input type="checkbox" id="completed" name="completed" {{ request('completed') ? 'checked' : '' }} class="hidden" onclick="submitForm()">
+                                <label for="completed" class="checkbox-label px-4 py-2 border border-gray-200 text-gray-700 rounded-lg cursor-pointer select-none transition duration-200 ease-in-out hover:bg-green-100 hover:text-green-800 hover:border-green-800 {{ request('completed') ? 'bg-green-100 text-green-800 border-green-800' : '' }}">
+                                    Completed
+                                </label>
+                            </div>
+                            <div class="flex items-center space-x-2 mr-48">
+                                <input type="checkbox" id="late" name="late" {{ request('late') ? 'checked' : '' }} class="hidden" onclick="submitForm()">
+                                <label for="late" class="checkbox-label px-4 py-2 border border-gray-200 text-gray-700 rounded-lg cursor-pointer select-none transition duration-200 ease-in-out hover:bg-red-100 hover:text-red-800 hover:border-red-800 {{ request('late') ? 'bg-red-100 text-red-800 border-red-800' : '' }}">
+                                    Late
+                                </label>
+                            </div>
+
+                            <div class="mr-2 ml-12">
                                 <label for="month" class="sr-only">Month</label>
                                 <select name="month" id="month" class="border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50">
                                     @for ($m = 1; $m <= 12; $m++)
@@ -92,6 +98,26 @@
                             </div>
                         </form>
                     </div>
+                    <div class="flex justify-between py-8">
+                        <div class="flex flex-grow text-center space-x-4">
+                            <div class="flex-1 bg-gray-200 px-4 py-2 rounded-lg">
+                                <p class="text-gray-700 font-semibold">Completed</p>
+                                <p class="text-lg text-green-600">{{ $completedCount }}</p>
+                            </div>
+                            <div class="flex-1 bg-gray-200 px-4 py-2 rounded-lg">
+                                <p class="text-gray-700 font-semibold">In Progress</p>
+                                <p class="text-lg text-yellow-600">{{ $inProgressCount }}</p>
+                            </div>
+                            <div class="flex-1 bg-gray-200 px-4 py-2 rounded-lg">
+                                <p class="text-gray-700 font-semibold">Pending</p>
+                                <p class="text-lg text-gray-600">{{ $pendingCount }}</p>
+                            </div>
+                            <div class="flex-1 bg-gray-200 px-4 py-2 rounded-lg">
+                                <p class="text-gray-700 font-semibold">Late</p>
+                                <p class="text-lg text-red-600">{{ $lateTasksCount }}</p>
+                            </div>
+                        </div>
+                    </div>
                     @foreach ($task_details as $detail)
                         <div class="border rounded-lg p-4 my-8 ">
                             <div class="flex justify-between items-center">
@@ -99,6 +125,13 @@
                                     <h3 class="font-semibold text-lg mb-4">
                                         <a href="{{ route('tasks.show', $detail->task->id) }}" class="hover:underline">{{ $detail->task->title }}</a>
                                     </h3>
+                                    @if($detail->lateTask)
+                                        <p class="mb-4">
+                                            <span class="bg-red-100 text-red-800 font-semibold px-2.5 py-0.5 rounded border border-red-800">
+                                                Late
+                                            </span>
+                                        </p>
+                                    @endif
                                     <p class="pb-4 font-semibold">Deadline: {{ $detail->task->due_date }}</p>
                                     <p>{{ $detail->task->description }}</p>
                                 </div>
@@ -189,6 +222,11 @@
     </div>
 
     <script>
+
+        function submitForm() {
+            document.getElementById('filterForm').submit();
+        }
+
         function openFeedbackModal(detailId) {
             // Open the modal and pass the detail id
             var modal = document.getElementById('feedbackModal');

@@ -10,12 +10,22 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200 flex justify-between">
                     <div>
-                        <h2 class="text-lg font-semibold mb-4">{{ $task->title }}</h2>
-                        <p class="mb-4"><strong>Link:</strong> {{ $task->url }}</p>
-                        <p class="mb-4"><strong>Due Date:</strong> {{ $task->due_date }}</p>
-                        <a href="{{ route('tasks.edit', $task->id) }}" class="text-black">
-                            <i class="fas fa-pencil-alt"></i>
-                        </a>
+                        <div class="flex items-center space-x-0 mb-4">
+                            <h2 class="text-lg font-semibold">{{ $task->title }}</h2>
+                            <a href="{{ route('tasks.edit', $task->id) }}" class="text-black pl-4">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+                        </div>
+                        <p class="mb-4"><strong>Link:</strong> 
+                            @if (filter_var($task->url, FILTER_VALIDATE_URL))
+                                <a href="{{ $task->url }}" target="_blank" class="underline">
+                                    {{ shortenText($task->url) }}
+                                </a>
+                            @else
+                                {{ shortenText($task->url) }}
+                            @endif
+                        </p>
+                        <p><strong>Due Date:</strong> {{ $task->due_date }}</p>
                     </div>
                     @if ($userDetail)
                     <div>

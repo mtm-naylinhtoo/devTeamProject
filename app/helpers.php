@@ -20,6 +20,23 @@ if (!function_exists('shortenDescription')) {
     }
 }
 
+if (!function_exists('shortenText')) {
+    /**
+     * Shortens a text to a maximum number of characters.
+     *
+     * @param string $text The original text.
+     * @param int $maxChars The maximum number of characters to include.
+     * @return string The shortened text.
+     */
+    function shortenText($text, $maxChars = 50) {
+        if (strlen($text) > $maxChars) {
+            return substr($text, 0, $maxChars) . '...';
+        }
+        return $text;
+    }
+}
+
+
 if (!function_exists('permission_allow')) {
     /**
      * Checks if the role of one user grants higher permissions than the role of another user.

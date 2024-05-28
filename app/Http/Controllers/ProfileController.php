@@ -30,16 +30,38 @@ class ProfileController extends Controller
     {
         $currentMonth = $request->input('month', now()->month);
         $currentYear = $request->input('year', now()->year);
+        $completed = $request->has('completed');
+        $late = $request->has('late');
 
         $task_details = $profile->sortedTasks($currentYear, $currentMonth);
+
+        if ($completed) {
+            $task_details = $task_details->where('status', 'completed');
+        }
+        if ($late) {
+            $lateTaskDetails = $profile->lateTasks()
+            ->whereYear('created_at', $currentYear)
+            ->whereMonth('created_at', $currentMonth)
+            ->pluck('task_detail_id');
+        
+            $task_details = $task_details->whereIn('id', $lateTaskDetails);
+        }
+
         $leaders = User::whereIn('role', ['leader', 'sub-leader'])->get(['id', 'name']);
         $task_details->each(function ($detail) {
             $detail->feedback_given = $detail->feedbacks->contains(function ($feedback) {
                 return $feedback->user_id === auth()->id();
             });
         });
+
+        $taskDetailsCount = $task_details->count();
+        $completedCount = $profile->sortedTasks($currentYear, $currentMonth)->where('status', 'completed')->count();
+        $inProgressCount = $profile->sortedTasks($currentYear, $currentMonth)->where('status', 'in_progress')->count();
+        $pendingCount = $profile->sortedTasks($currentYear, $currentMonth)->where('status', 'pending')->count();
+        $lateTasksCount = $profile->lateTasks()->whereYear('created_at', $currentYear)->whereMonth('created_at', $currentMonth)->count();
+
     
-        return view('profile.show', compact('profile', 'task_details', 'leaders'));
+        return view('profile.show', compact('profile', 'task_details', 'leaders', 'taskDetailsCount', 'completedCount', 'inProgressCount', 'pendingCount', 'lateTasksCount'));
     }
 
     public function edit(User $profile)
@@ -140,7 +162,7 @@ class ProfileController extends Controller
             Write a single paragraph between 500 to 1000 words. Do not format it as an email or refer to yourself. 
             Focus on addressing the team member directly and offering constructive advice. 
             Do not list individual tasks or their specific feedback; instead, provide an overall assessment based on all tasks and ratings. 
-            You can use <br> to separate ideas for clarity. The summary will be included in a PDF and given to the team member.
+            You can use line break to separate ideas for clarity. The summary will be included in a PDF and given to the team member.
             Don't use ** ** or ## for header title, in fact don't use header titles at all.
             Here is the data: Member: {$user->name}, Role: {$user->role} (BSE means Bridge System Engineer).\n\n";
         foreach ($tasksWithFeedbacks as $task) {

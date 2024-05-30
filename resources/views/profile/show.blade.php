@@ -73,7 +73,7 @@
 
                             <div class="mr-2 ml-12">
                                 <label for="month" class="sr-only">Month</label>
-                                <select name="month" id="month" class="border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50">
+                                <select name="month" id="month" class="appearance-none bg-white border border-gray-400 hover:border-gray-500 px-4 pr-8 rounded shadow leading-tight focus:outline-none focus:border-gray-500">
                                     @for ($m = 1; $m <= 12; $m++)
                                         <option value="{{ $m }}" {{ $m == request('month', now()->month) ? 'selected' : '' }}>
                                             {{ \Carbon\Carbon::create()->month($m)->format('F') }}
@@ -83,7 +83,7 @@
                             </div>
                             <div class="mr-2">
                                 <label for="year" class="sr-only">Year</label>
-                                <select name="year" id="year" class="border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50">
+                                <select name="year" id="year" class="appearance-none bg-white border border-gray-400 hover:border-gray-500 px-4 pr-8 rounded shadow leading-tight focus:outline-none focus:border-gray-500">
                                     @for ($y = now()->year - 5; $y <= now()->year + 5; $y++)
                                         <option value="{{ $y }}" {{ $y == request('year', now()->year) ? 'selected' : '' }}>
                                             {{ $y }}
